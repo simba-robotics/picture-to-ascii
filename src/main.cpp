@@ -418,7 +418,13 @@ int main(int argc, char* argv[]) {
         else if ((a == "-s") && i + 1 < argc)  style  = argv[++i];
         else if (a == "-i")                     invert = true;
         else if (a == "-c")                     colour = true;
-        else if (a == "-o" && i + 1 < argc)     output_txt = true, output_name = std::string(argv[++i]);
+        //else if (a == "-o" && i + 1 < argc)     output_txt = true, output_name = std::string(argv[++i]);
+        else if (a == "-o") {
+            output_txt = true;
+            if (i + 1 < argc && argv[i + 1][0] != '-') {
+                output_name = std::string(argv[++i]);
+            }
+        }
         else if (a == "--help") { usage(argv[0]); return 0; }
         else if (a[0] != '-')                   filename = a;
         else { std::cerr << "Unknown option: " << a << "\n"; usage(argv[0]); return 1; }
@@ -504,7 +510,7 @@ int main(int argc, char* argv[]) {
         std::cout << '\n';
         }
     }
-    if ((*p_file).is_open()){
+    if (output_txt){
         (*p_file).close();
         std::cout << "Output as a txt file successful";
     }
