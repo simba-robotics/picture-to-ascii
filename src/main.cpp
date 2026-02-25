@@ -393,6 +393,7 @@ static void usage(const char* prog) {
         "              Styles: standard | dense | simple | binary\n"
         "  -i          Invert brightness\n"
         "  -c          ANSI 24-bit colour output\n"
+        "  -o <name>   Output as a txt file  (default: restul.txt)\n"
         "  --help      Show this help\n"
         "\n"
         "Examples:\n"
@@ -404,9 +405,11 @@ static void usage(const char* prog) {
 
 int main(int argc, char* argv[]) {
     int out_w = 80, out_h = 0;
+    std::string output_name = "restul.txt";
     std::string style = "standard";
-    bool invert = false, colour = false;
+    bool invert = false, colour = false, output_txt = false;
     std::string filename;
+    std::ofstream* p_file = nullptr;
 
     for (int i = 1; i < argc; ++i) {
         std::string a = argv[i];
@@ -415,12 +418,20 @@ int main(int argc, char* argv[]) {
         else if ((a == "-s") && i + 1 < argc)  style  = argv[++i];
         else if (a == "-i")                     invert = true;
         else if (a == "-c")                     colour = true;
+        else if (a == "-o" && i + 1 < argc)     output_txt = true, output_name = std::string(argv[++i]);
         else if (a == "--help") { usage(argv[0]); return 0; }
         else if (a[0] != '-')                   filename = a;
         else { std::cerr << "Unknown option: " << a << "\n"; usage(argv[0]); return 1; }
     }
 
+    if (output_txt == true && colour == true) {std::cerr << "Txt file do not allow colors" << "\n";return 0;}
     if (filename.empty()) { usage(argv[0]); return 1; }
+
+    if (output_txt) {
+        static std::ofstream output_file(output_name);
+        p_file = &output_file;
+        std::cout << "Output as a txt file ing...\n";
+    }
 
     const char* cs = CS_STANDARD;
     if      (style == "dense")  cs = CS_DENSE;
@@ -475,11 +486,27 @@ int main(int argc, char* argv[]) {
                 int b = (int)(ab / cnt * 255);
                 std::cout << "\033[38;2;" << r << ";" << g << ";" << b << "m";
             }
-
+            
+            if (output_txt) {
+                if (p_file) {
+                (*p_file) << cs[ci];
+                }
+            } else {
             std::cout << cs[ci];
+            }
         }
         if (colour) std::cout << "\033[0m";
+        if (output_txt) {
+            if (p_file) {
+                (*p_file) << '\n';
+                }
+        } else {
         std::cout << '\n';
+        }
+    }
+    if ((*p_file).is_open()){
+        (*p_file).close();
+        std::cout << "Output as a txt file successful";
     }
 
     return 0;
