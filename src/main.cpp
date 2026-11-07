@@ -378,6 +378,10 @@ static const char* CS_DENSE    = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJ
 static const char* CS_SIMPLE   = " -+#@";
 static const char* CS_BINARY   = " @";
 
+// Two-tone split along the top-right -> bottom-left diagonal
+static const int ROSE_COLOR[3] = {230, 30, 140};  // rose (upper-left)
+static const int GOLD_COLOR[3] = {255, 200, 0};   // gold (lower-right)
+
 // ─────────────────────────── main ───────────────────────────────────────────
 // Your changes can start from here. 
 // PNG file format decoding is quite complicate in
@@ -474,11 +478,17 @@ int main(int argc, char* argv[]) {
                 int g = (int)(ag / cnt * 255);
                 int b = (int)(ab / cnt * 255);
                 std::cout << "\033[38;2;" << r << ";" << g << ";" << b << "m";
+                        } else {
+                const int* c = ((float)ox / out_w + (float)oy / out_h < 1.f)
+                                   ? ROSE_COLOR : GOLD_COLOR;
+                std::cout << "\033[38;2;" << c[0] << ";" << c[1] << ";" << c[2] << "m";
             }
+
 
             std::cout << cs[ci];
         }
-        if (colour) std::cout << "\033[0m";
+                std::cout << "\033[0m";
+
         std::cout << '\n';
     }
 
